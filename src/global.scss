@@ -1,0 +1,122 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.mx-10 {
+  margin: 0 10px !important;
+}
+
+.mr-15 {
+  margin-right: 15px !important;
+}
+
+.ml-5 {
+  margin-left: 5px !important;
+}
+
+.main-layout-wr {
+  height: 100vh;
+}
+.dashboard-wr {
+  width: 100%;
+  height: 100vh;
+}
+
+.left-side-menu {
+  height: 100vh !important;
+  background: rgb(255, 255, 255);
+  .logo {
+    height: 100px;
+  }
+}
+
+#components-layout-demo-custom-trigger .trigger {
+  padding: 0 24px;
+  font-size: 18px;
+  line-height: 64px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+#components-layout-demo-custom-trigger .trigger:hover {
+  color: #1890ff;
+}
+
+#components-layout-demo-custom-trigger .logo {
+  height: 32px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ant-layout-content {
+  margin: 24px 16px;
+}
+.ant-layout {
+  overflow-y: auto;
+}
+
+.card-img {
+  border-top-right-radius: 15px !important;
+  border-top-left-radius: 15px !important;
+}
+.search-form-box {
+  width: 100%;
+  padding: 0 20px;
+  margin: auto;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  background: #ffffff;
+
+  .search-form-box-title {
+    padding-top: 10px;
+    padding-bottom: 15px;
+    font-size: 17px;
+  }
+}
+
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  height: 50px !important;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+
+.ant-select-selector {
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+}
+
+.site-form-in-drawer-wrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: right;
+  background: #fff;
+  border-top: 1px solid #e9e9e9;
+}
+.ant-drawer-content-wrapper {
+  .ant-input {
+    height: 50px;
+    border-radius: 10px;
+  }
+}
+
+.anticon {
+  font-size: 17px !important;
+}
+
+.ant-pagination-options {
+  .ant-select {
+    .ant-select-selector {
+      height: 32px !important;
+      border-radius: 2px;
+      font-size: 15px;
+    }
+  }
+  .anticon {
+    font-size: 15px !important;
+  }
+}
