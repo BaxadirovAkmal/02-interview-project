@@ -1,51 +1,42 @@
-import { Button, Col, Drawer, Form, Input, Row, Select, Space } from 'antd';
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {editSelectedUserHandler} from "../store/actions/dashboardActions";
+import React, {useEffect} from 'react';
+import { Col, Drawer, Form, Input, Row, Select,} from 'antd';
+import {useSelector} from "react-redux";
 
 const { Option } = Select;
 
-const EditUserComponent = (props) => {
-    const {editModalVisibleHandler, modalVisible} = props
-    const dispatch = useDispatch();
-    const {users, item} = useSelector((state) => state.dashboard)
+const ViewUserComponent = props => {
+    const {viewModalVisibleHandler, viewModalVisible} = props
+    const {item} = useSelector((state) => state.dashboard)
     const [form] = Form.useForm();
-    const [objToEdit, setObjToEdit] = useState({});
 
     useEffect(() => {
-        if (item.id) {
-            form.setFieldsValue(item)
-            const res = (users || []).find(user => user.id?.value === item.id )
-            setObjToEdit(res)
+        const _item = {
+            first: item.name?.split(' ')[0],
+            last: item.name?.split(' ')[1],
+            email: item.email,
+            gender: item.gender,
+            location: item.location,
+            nation: item.nation,
+            key: item.key
+        }
+        if (_item.key) {
+            form.setFieldsValue(_item)
         }
     }, [item])
-
-    const onFinish = (values) => {
-        const transfer = {
-            name: {
-                first: values.first,
-                last: values.last
-            },
-            id: objToEdit.id?.value,
-            ...values
-        }
-        dispatch(editSelectedUserHandler(transfer))
-        form.resetFields();
-        setObjToEdit({});
-    };
 
     return (
         <div className='drawer-wr'>
             <Drawer
-                title="Edit selected an account"
+                title="View selected an account"
                 width={500}
-                onClose={editModalVisibleHandler}
-                open={modalVisible}
+                onClose={viewModalVisibleHandler}
+                open={viewModalVisible}
                 bodyStyle={{
                     paddingBottom: 80,
                 }}
+
             >
-                <Form layout="vertical" hideRequiredMark onFinish={onFinish} form={form}>
+                <Form layout="vertical" hideRequiredMark form={form} style={{pointerEvents: 'none'}}>
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
@@ -151,16 +142,10 @@ const EditUserComponent = (props) => {
                             </Form.Item>
                         </Col>
                     </Row>
-                    <Space style={{display: "flex", justifyContent: "flex-end"}}>
-                        <Button onClick={editModalVisibleHandler}>Cancel</Button>
-                        <Button onClick={editModalVisibleHandler} type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Space>
                 </Form>
             </Drawer>
         </div>
     );
 }
 
-export default EditUserComponent;
+export default ViewUserComponent;

@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {menus} from '../menu/menu';
 import {useNavigate} from 'react-router-dom';
 import { Layout, Menu } from 'antd';
+import LogoImg from '../images/react-logo.webp';
 const { Sider} = Layout;
-
 const Sidebar = () => {
-    const navigate = useNavigate()
-    const [collapsed, setCollapsed] = useState(false);
+    const navigate = useNavigate();
     const menuData = [...menus];
 
     const getMenu = (menu) => {
@@ -24,9 +23,11 @@ const Sidebar = () => {
 
     return (
         <div className='sidebar'>
-            <Sider className='left-side-menu' trigger={null} collapsible collapsed={collapsed}
+            <Sider className='left-side-menu' trigger={null}
                    style={{boxShadow: "0 0 30px 0 rgba(0, 0, 0, 0.15)", height: "100%", background: "#ffffff"}}>
-                <div className="logo" />
+                <div className="logo" role='button' onClick={() => navigate('/dashboard')}>
+                    <img src={LogoImg} alt="logo"/>
+                </div>
                 <Menu theme="light" mode="inline">
                     {getMenu(menuData)}
                 </Menu>

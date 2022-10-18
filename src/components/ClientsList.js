@@ -1,22 +1,35 @@
 import React, {useEffect, useState} from 'react';
-import {Form, Select, Col, Row, Card, Tag, Input, Button, Modal, Space} from 'antd';
+import {Form, Select, Col, Row, Card, Input, Button, Modal, Spin} from 'antd';
 import CTable from "./Table";
 import {PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, ExclamationCircleOutlined} from '@ant-design/icons';
 import AddUserComponent from "./AddUserComponent";
 import EditUserComponent from './EditUserComponent';
+import ViewUserComponent from "./ViewUserComponent";
 import CButton from "./Button";
 import {useDispatch, useSelector} from "react-redux";
 import {getRandomUsers} from "../store/slices/dashboardSlice";
-import {changePageHandler, setToEditUserHandler, editModalVisibleHandler, editSelectedUserHandler, setToDeleteUserHandler, deleteSelectedUserHandler} from "../store/actions/dashboardActions";
+import {
+    changePageHandler,
+    setToEditUserHandler,
+    editModalVisibleHandler,
+    setToDeleteUserHandler,
+    deleteSelectedUserHandler,
+    selectByGenderHandler,
+    selectByNationHandler,
+    selectByLocationHandler,
+    viewSelectedUserHandler,
+    viewModalVisibleHandler
+} from "../store/actions/dashboardActions";
 import {nanoid} from '@reduxjs/toolkit';
 
 const {Option} = Select;
-const { confirm } = Modal;
+const {confirm} = Modal;
 
-const ClientsList = props => {
+const ClientsList = () => {
 
-    const {users, loading, paginationData, modalVisible} = useSelector((state) => state.dashboard)
+    const {users, loading, paginationData, modalVisible, viewModalVisible} = useSelector((state) => state.dashboard)
     const dispatch = useDispatch()
+    const [form] = Form.useForm();
 
     useEffect(() => {
         dispatch(getRandomUsers({
@@ -25,10 +38,8 @@ const ClientsList = props => {
         }))
     }, [paginationData])
 
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [addDrawerOpen, setAddDrawerOpen] = useState(false);
-    const [editDrawerOpen, setEditDrawerOpen] = useState(false);
-    const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
+    const [searchedText, setSearchedText] = useState("");
 
     const addDrawerHandler = () => {
         setAddDrawerOpen(true);
@@ -38,35 +49,17 @@ const ClientsList = props => {
         setAddDrawerOpen(false);
     };
 
-    const editDrawerHandler = () => {
-        setEditDrawerOpen(true)
-    }
-
-    const closeEditDrawerHandler = () => {
-        setEditDrawerOpen(false)
-    }
-
-    const viewDrawerHandler = () => {
-        setViewDrawerOpen(true)
-    }
-
-    const closeDrawerHandler = () => {
-        setViewDrawerOpen(false)
-    }
-
     const showDeleteConfirm = () => {
         confirm({
             title: 'Are you sure to delete this user ?',
-            icon: <ExclamationCircleOutlined />,
+            icon: <ExclamationCircleOutlined/>,
             okText: 'Yes',
             okType: 'danger',
             cancelText: 'No',
             onOk() {
                 dispatch(deleteSelectedUserHandler());
             },
-            onCancel() {
-                return 'Cancel';
-            },
+            onCancel: () => false,
         });
     };
 
@@ -75,6 +68,11 @@ const ClientsList = props => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            sorter: (a, b) => a.name.length - b.name.length,
+            filteredValue: [searchedText],
+            onFilter: (value, record) => {
+                return String(record.name).toLowerCase().includes(value.toLowerCase())
+            }
         },
         {
             title: 'Email',
@@ -82,115 +80,113 @@ const ClientsList = props => {
             key: 'email',
         },
         {
-            title: 'Role',
-            dataIndex: 'role',
-            key: 'role',
+            title: 'Gender',
+            dataIndex: 'gender',
+            key: 'gender',
+            sorter: (a, b) => a.gender.length - b.gender.length,
         },
         {
-            title: 'Plan',
-            dataIndex: 'plan',
-            key: 'plan',
+            title: 'Nation',
+            dataIndex: 'nation',
+            key: 'nation',
         },
         {
-            title: 'Status',
-            key: 'status',
-            dataIndex: 'status',
-            render: (_, {status}) => (
-                <>
-                    {(status || []).map((tag) => {
-                        let color = status.length > 6 ? 'geekblue' : 'green';
-                        if (status === 'loser') {
-                            color = 'volcano';
-                        }
-                        return (
-                            <Tag color={color} key={tag}>
-                                {status}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
+            title: 'Location',
+            key: 'location',
+            dataIndex: 'location',
+            sorter: (a, b) => a.location.length - b.location.length,
         },
         {
             title: 'Actions',
             key: 'actions',
             render: (item) => <div style={{display: "flex"}}>
                 <CButton onClick={() => dispatch(setToEditUserHandler(item))}><EditOutlined/></CButton>
-                <CButton className="mx-10"><EyeOutlined/></CButton>
-                <CButton onClick={() => {dispatch(setToDeleteUserHandler(item)); showDeleteConfirm()}}><DeleteOutlined/></CButton>
+                <CButton className="mx-10" onClick={() => dispatch(viewSelectedUserHandler(item))}><EyeOutlined/></CButton>
+                <CButton onClick={() => {
+                    dispatch(setToDeleteUserHandler(item));
+                    showDeleteConfirm()
+                }}><DeleteOutlined/></CButton>
             </div>,
         },
     ];
-    console.log('users', users)
+
     const companyGroupList = (users || []).map(item => (
         {
             key: nanoid(),
             id: item.id?.value,
             name: `${item.name?.first} ${item.name?.last}`,
             email: item.email,
-            role: (item.role ? item.role : item.nat === 'US' ? 'Editor' : item.nat === 'TR' ? 'Author' : item.nat === 'GB' ? 'Maintainer' : 'Subscriber'),
-            plan: (item.plan ? item.plan : item.nat === 'IE' ? 'Enterprise' : item.nat === 'ES' ? 'Team' : 'Maintainer'),
-            status: [(item.status? item.status : item.nat === 'FI' ? 'Active' : item.nat === 'UA' ? 'Pending' : 'Inactive')]
+            gender: item.gender,
+            nation: item.nat,
+            location: item.location?.city
         }
     ))
 
-    const onSelectChange = (newSelectedRowKeys) => {
-        console.log('selectedRowKeys changed: ', selectedRowKeys);
-        setSelectedRowKeys(newSelectedRowKeys);
+    const onReset = () => {
+        form.resetFields();
+        dispatch(getRandomUsers({
+            page: paginationData.current,
+            results: paginationData.limit
+        }))
     };
 
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: onSelectChange,
-    };
-
-    const hasSelected = selectedRowKeys.length > 0;
-    console.log('companyGroupList+++', companyGroupList)
     return (
         <>
-            <Form className='search-form-box'>
-                <div className='search-form-box-title'>Search Filters</div>
+            {loading && <div className="auth-loader">
+                <Spin size="large"/>
+            </div>}
+            <Form className='search-form-box' form={form}>
+                <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <div className='search-form-box-title'>Search Filters</div>
+                    <div className='search-form-box-title'>
+                        <Button style={{fontSize: "16px", padding: "4px 20px"}} onClick={() => onReset()}>Reset</Button>
+                    </div>
+                </div>
                 <Row>
                     <Col span={8} style={{paddingRight: "10px"}}>
                         <Form.Item
-                            name="role"
+                            name="gender"
                         >
                             <Select
-                                placeholder="Select Role"
+                                placeholder="Select Gender"
                                 allowClear
+                                onChange={(value) => dispatch(selectByGenderHandler(value))}
                             >
-                                <Option value="editor">Editor</Option>
-                                <Option value="author">Author</Option>
-                                <Option value="maintainer">Maintainer</Option>
-                                <Option value="subscriber">Subscriber</Option>
+                                <Option value="male">Male</Option>
+                                <Option value="female">Female</Option>
                             </Select>
                         </Form.Item>
                     </Col>
                     <Col span={8} style={{padding: "0 10px"}}>
                         <Form.Item
-                            name="plan"
+                            name="nation"
                         >
                             <Select
-                                placeholder="Select Plan"
+                                placeholder="Select Nation"
                                 allowClear
+                                onChange={(value) => dispatch(selectByNationHandler(value))}
                             >
-                                <Option value="enterprise">Enterprise</Option>
-                                <Option value="team">Team</Option>
-                                <Option value="company">Company</Option>
+                                <Option value="IE">IE</Option>
+                                <Option value="DE">DE</Option>
+                                <Option value="AU">AU</Option>
+                                <Option value="UK">UK</Option>
+                                <Option value="US">US</Option>
                             </Select>
                         </Form.Item>
                     </Col>
                     <Col span={8} style={{paddingLeft: "10px"}}>
                         <Form.Item
-                            name="status"
+                            name="location"
                         >
                             <Select
-                                placeholder="Select Status"
+                                placeholder="Select Location"
                                 allowClear
+                                onChange={(value) => dispatch(selectByLocationHandler(value))}
                             >
-                                <Option value="inactive">Inactive</Option>
-                                <Option value="pending">Pending</Option>
-                                <Option value="active">Active</Option>
+                                <Option value="Blessington">Blessington</Option>
+                                <Option value="Hobart">Hobart</Option>
+                                <Option value="Isparta">Isparta</Option>
+                                <Option value="Isparta">Pueblo</Option>
                             </Select>
                         </Form.Item>
                     </Col>
@@ -207,6 +203,9 @@ const ClientsList = props => {
                             fontSize: '17px',
                             borderRadius: '10px'
                         }}
+                        onChange={(e) => {
+                            setSearchedText(e.target.value)
+                        }}
                     />
                     <Button type="primary" onClick={addDrawerHandler} icon={<PlusOutlined/>}
                             style={{borderRadius: '10px', fontSize: '17px', height: 'inherit', marginLeft: '25px'}}>
@@ -214,11 +213,13 @@ const ClientsList = props => {
                     </Button>
                 </div>
                 <AddUserComponent closeAddDrawerHandler={closeAddDrawerHandler} addDrawerOpen={addDrawerOpen}/>
-                <EditUserComponent editModalVisibleHandler={() => dispatch(editModalVisibleHandler())} modalVisible={modalVisible}/>
+                <EditUserComponent editModalVisibleHandler={() => dispatch(editModalVisibleHandler())}
+                                   modalVisible={modalVisible}/>
+                <ViewUserComponent viewModalVisibleHandler={() => dispatch(viewModalVisibleHandler())}
+                                   viewModalVisible={viewModalVisible}/>
                 <CTable
                     dataSource={companyGroupList}
                     columns={columns}
-                    rowSelection={rowSelection}
                     paginationProps={{
                         ...users.paginationData,
                         onChange: ({page, pageSize, start}) => dispatch(changePageHandler({

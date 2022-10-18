@@ -4,10 +4,15 @@ import {
     addNewUserHandler,
     changePageHandler,
     deleteSelectedUserHandler,
+    editModalVisibleHandler,
     editSelectedUserHandler,
+    selectByGenderHandler,
+    selectByLocationHandler,
+    selectByNationHandler,
     setToDeleteUserHandler,
     setToEditUserHandler,
-    editModalVisibleHandler
+    viewModalVisibleHandler,
+    viewSelectedUserHandler
 } from "../actions/dashboardActions";
 import qs from 'qs';
 
@@ -30,7 +35,8 @@ export const dashboardSlice = createSlice({
             limit: 10
         },
         item: {},
-        modalVisible: false
+        modalVisible: false,
+        viewModalVisible: false
     },
     extraReducers: {
         [getRandomUsers.pending]: (state) => {
@@ -50,20 +56,22 @@ export const dashboardSlice = createSlice({
         [addNewUserHandler]: (state, action) => {
             state.users = [...state.users, action.payload]
         },
-        [setToEditUserHandler]: (state, action) => {
-            state.item = action.payload
+        [setToEditUserHandler]: (state, {payload}) => {
+            state.item = {
+                first: payload.name.split(' ')[0],
+                last: payload.name.split(' ')[1],
+                ...payload
+            }
             state.modalVisible = !state.modalVisible
         },
         [editSelectedUserHandler]: (state, {payload}) => {
-            const {item} = state
             state.users = state.users.map(user => {
-                if (user.id?.value === item.id) {
-                    user.id = payload.id;
+                if (user.id?.value === payload.id) {
                     user.name = payload.name;
                     user.email = payload.email;
-                    user.role = payload.role;
-                    user.plan = payload.plan;
-                    user.status = payload.status;
+                    user.gender = payload.gender;
+                    user.location = { city: payload.location};
+                    user.nation = payload.nation;
                 }
                 return user
             })
@@ -72,12 +80,29 @@ export const dashboardSlice = createSlice({
         [setToDeleteUserHandler]: (state, action) => {
             state.item = action.payload
         },
-        [deleteSelectedUserHandler]: (state, action) => {
+        [deleteSelectedUserHandler]: (state) => {
             state.users = state.users.filter(item => (item.id?.value !== state.item.id))
             state.item = {}
         },
-        [editModalVisibleHandler]: (state, action) => {
+        [editModalVisibleHandler]: (state) => {
             state.modalVisible = false
+            state.item = {}
+        },
+        [selectByGenderHandler]: (state, action) => {
+            state.users = (state.users || []).filter(user => user.gender === action.payload)
+        },
+        [selectByNationHandler]: (state, action) => {
+            state.users = (state.users || []).filter(user => user.nat === action.payload)
+        },
+        [selectByLocationHandler]: (state, action) => {
+            state.users = (state.users || []).filter(user => user.location.city === action.payload)
+        },
+        [viewSelectedUserHandler]: (state, action) => {
+            state.item = action.payload
+            state.viewModalVisible = !state.viewModalVisible
+        },
+        [viewModalVisibleHandler]: (state) => {
+            state.viewModalVisible = false
             state.item = {}
         }
     }

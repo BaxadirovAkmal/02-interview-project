@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space } from 'antd';
+import { Button, Col, Drawer, Form, Input, Row, Select, Space } from 'antd';
 import React from 'react';
 import {useDispatch} from "react-redux";
 import {addNewUserHandler} from "../store/actions/dashboardActions";
@@ -18,11 +18,10 @@ const AddUserComponent = props => {
                 last: values.last
             },
             email: values.email,
-            role: values.role,
-            plan: values.plan,
-            status: values.status,
+            gender: values.gender,
+            nat: values.nation,
+            location: {city: values.location},
             id: {value: nanoid()},
-            nat: "UZ"
         }
         dispatch(addNewUserHandler(transfer))
         form.resetFields();
@@ -91,56 +90,57 @@ const AddUserComponent = props => {
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                name="role"
-                                label="Role"
+                                name="gender"
+                                label="Gender"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please select a role',
+                                        message: 'Please select a gender',
                                     },
                                 ]}
                             >
-                                <Select placeholder="Please select a role">
-                                    <Option value="Editor">Editor</Option>
-                                    <Option value="Author">Author</Option>
-                                    <Option value="Maintainer">Maintainer</Option>
-                                    <Option value="Subscriber">Subscriber</Option>
+                                <Select placeholder="Please select a gender">
+                                    <Option value="Male">Male</Option>
+                                    <Option value="Female">Female</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                name="plan"
-                                label="Plan"
+                                name="nation"
+                                label="Nation"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please choose the plan',
+                                        message: 'Please choose the nation',
                                     },
                                 ]}
                             >
-                                <Select placeholder="Please choose the plan">
-                                    <Option value="Enterprise">Enterprise</Option>
-                                    <Option value="Team">Team</Option>
-                                    <Option value="Company">Company</Option>
+                                <Select placeholder="Please choose the nation">
+                                    <Option value="IE">IE</Option>
+                                    <Option value="DE">DE</Option>
+                                    <Option value="AU">AU</Option>
+                                    <Option value="UK">UK</Option>
+                                    <Option value="US">US</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                name="status"
-                                label="Status"
+                                name="location"
+                                label="Location"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please choose the status',
+                                        message: 'Please choose the location',
                                     },
                                 ]}
                             >
-                                <Select placeholder="Please choose the status">
-                                    <Option value="Inactive">Inactive</Option>
-                                    <Option value="Pending">Pending</Option>
-                                    <Option value="Active">Active</Option>
+                                <Select placeholder="Please choose the location">
+                                    <Option value="Blessington">Blessington</Option>
+                                    <Option value="Hobart">Hobart</Option>
+                                    <Option value="Isparta">Isparta</Option>
+                                    <Option value="Pueblo">Pueblo</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
